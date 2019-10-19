@@ -22,6 +22,10 @@ def scrap():
         models = get('http://fipeapi.appspot.com/api/1/carros/veiculos/{make}.json'.format(make = make['id']))
         make['models'] = models
 
+        for model in models:
+            versions = get('http://fipeapi.appspot.com/api/1/carros/veiculo/{make}/{model_id}.json'.format(make=make, model_id = model['id']))
+            model['versions'] = versions
+
     print('Car models successfully retrieved. Outputting file...')
     with open(os.path.join(output_dir, 'cars.json'), 'w') as output:
         json.dump(makes_result, output)
