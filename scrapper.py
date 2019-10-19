@@ -34,7 +34,14 @@ def scrap():
 
             model['versions'] = versions
 
+            for version in versions:
+                version_id = version['id']
+                version_details = get('http://fipeapi.appspot.com/api/1/carros/veiculo/{make_id}/{model_id}/{version_id}.json'.format(make_id=make_id, model_id=model_id, version_id=version_id))
+
+                version['details'] = version_details
+
     output('Car models successfully retrieved. Outputting file...')
+
     with open(os.path.join(output_dir, 'cars.json'), 'w') as json_file:
         json.dump(makes_result, json_file)
 
