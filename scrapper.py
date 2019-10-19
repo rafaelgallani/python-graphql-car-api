@@ -3,6 +3,7 @@ import requests, json, time, os
 interval = .100
 output_dir = 'data'
 debug = True
+base_url = 'http://fipeapi.appspot.com/api/1/carros'
 
 def output(s):
     if debug:
@@ -21,22 +22,22 @@ def get(url):
     return json.loads(result.text)
 
 def scrap():
-    makes_result = get('http://fipeapi.appspot.com/api/1/carros/marcas.json')
+    makes_result = get('{base_url}/marcas.json'.format(base_url=base_url))
 
     for make in makes_result:
         make_id = make['id']
-        models = get('http://fipeapi.appspot.com/api/1/carros/veiculos/{make_id}.json'.format(make_id=make_id))
+        models = get('{base_url}/veiculos/{make_id}.json'.format(base_url=base_url, make_id=make_id))
         make['models'] = models
 
         for model in models:
             model_id = model['id']
-            versions = get('http://fipeapi.appspot.com/api/1/carros/veiculo/{make_id}/{model_id}.json'.format(make_id=make_id, model_id=model_id))
+            versions = get('{base_url}/veiculo/{make_id}/{model_id}.json'.format(base_url=base_url, make_id=make_id, model_id=model_id))
 
             model['versions'] = versions
 
             for version in versions:
                 version_id = version['id']
-                version_details = get('http://fipeapi.appspot.com/api/1/carros/veiculo/{make_id}/{model_id}/{version_id}.json'.format(make_id=make_id, model_id=model_id, version_id=version_id))
+                version_details = get('{base_url}/veiculo/{make_id}/{model_id}/{version_id}.json'.format(base_url=base_url, make_id=make_id, model_id=model_id, version_id=version_id))
 
                 version['details'] = version_details
 
