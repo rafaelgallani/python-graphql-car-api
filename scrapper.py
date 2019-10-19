@@ -2,44 +2,54 @@ import requests, json, time, os
 
 interval = .100
 output_dir = 'data'
+debug = True
+
+def output(s):
+    if debug:
+        print(s)
 
 def get(url):
     
     result = requests.get(url)
 
     while not result.ok:
-        print('Could not query for "{url}". Trying again after {interval:0.0f} milliseconds.'.format(url=url, interval=interval*1000))
+        output('Could not query for "{url}". Trying again after {interval:0.0f} milliseconds.'.format(url=url, interval=interval*1000))
         time.sleep(interval)
         result = requests.get(url)
     
-    print('Successfully queried "{url}".'.format(url=url))
+    output('Successfully queried "{url}".'.format(url=url))
     return json.loads(result.text)
 
 def scrap():
     makes_result = get('http://fipeapi.appspot.com/api/1/carros/marcas.json')
 
     for make in makes_result:
-        models = get('http://fipeapi.appspot.com/api/1/carros/veiculos/{make}.json'.format(make = make['id']))
+        make_id = make['id']
+        models = get('http://fipeapi.appspot.com/api/1/carros/veiculos/{make_id}.json'.format(make_id=make_id))
         make['models'] = models
 
         for model in models:
-            versions = get('http://fipeapi.appspot.com/api/1/carros/veiculo/{make}/{model_id}.json'.format(make=make, model_id = model['id']))
+            model_id = model['id']
+            versions = get('http://fipeapi.appspot.com/api/1/carros/veiculo/{make_id}/{model_id}.json'.format(make_id=make_id, model_id=model_id))
+
             model['versions'] = versions
 
-    print('Car models successfully retrieved. Outputting file...')
-    with open(os.path.join(output_dir, 'cars.json'), 'w') as output:
-        json.dump(makes_result, output)
+    output('Car models successfully retrieved. Outputting file...')
+    with open(os.path.join(output_dir, 'cars.json'), 'w') as json_file:
+        json.dump(makes_result, json_file)
 
-    print('Done.')
-    print('\n\n\n\n\n\n==================== FINISHED ====================\n\n\n\n\n\n')
+    output('Done.')
+    output('\n\n\n\n\n\n==================== FINISHED ====================\n\n\n\n\n\n')
 
 def init_defaults():
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 
 def main():
+    print('Retrieving data...')
     init_defaults()
     scrap()
+    print('All data retrieved.')
 
 # ------------------------------------------------------------------------------------------ #
 
