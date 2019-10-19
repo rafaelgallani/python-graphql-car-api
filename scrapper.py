@@ -2,7 +2,7 @@ import requests, json, time, os
 
 interval = .100
 output_dir = 'data'
-debug = True
+debug = False
 base_url = 'https://veiculos.fipe.org.br/api/veiculos/'
 
 def output(s):
@@ -32,71 +32,105 @@ def post(url, params):
                 result = requests.post(url)
 
             request_completed = True        
+            
             output('Successfully queried "{url}".'.format(url=url))
             return json.loads(result.text)
-        except ConnectionError as e:
+
+        except Exception as e:
             exception_counter += 1
-            output('=== EXCEPTION ===\n{}: {}'.format(e.errno, e.strerror))
+            print('=== EXCEPTION ===\n{}'.format(e))
             request_completed = False
 
             if exception_counter >= 10:
-                ans = None
-                while ans != 'y' and ans != 'n':
-                    ans = input('More than 10 exceptions have occurred. Do you want to continue? (Y or N)').lower()
-                    if ans == 'y':
-                        exception_counter = 0 
-                    else:
-                        raise Exception('More than 10 exceptions. User stopped the script.')
+                raise Exception('More than 10 exceptions.')
 
 
 def scrap():
-    makes_result = post('ConsultarMarcas', {
-        'codigoTabelaReferencia':247,
-        'codigoTipoVeiculo': 1,
-    })
 
-    try:
-        for make in makes_result:
-            make_id = make['Value']
-            models = post('ConsultarModelos', {
-                'codigoTabelaReferencia':247,
-                'codigoTipoVeiculo': 1,
-                'codigoMarca': make_id,
-            })
-            make['models'] = models['Modelos']
-            
-            for model in make['models']:
-                model_id = model['Value']
-                versions = post('ConsultarAnoModelo', {
+    done = False
+
+    processed_makes = set()
+    processed_models = set()
+    processed_versions = set()
+
+    makes_result = None
+
+    while not done:
+        
+        try:
+
+            if not makes_result:
+                makes_result = post('ConsultarMarcas', {
                     'codigoTabelaReferencia':247,
                     'codigoTipoVeiculo': 1,
-                    'codigoMarca': make_id,
-                    'codigoModelo': model_id,
-                })
+                })   
 
-                model['versions'] = versions
+            for make in makes_result:
+                make_key = str(make['Value'])
 
-                for version in versions:
-                    version_id = version['Value']
-                    version_year, version_fuel_type = version_id.split('-')
-                    
-                    version_details = post('ConsultarValorComTodosParametros', {
+                if not make_key in processed_makes:
+                    make_id = make['Value']
+                    models = post('ConsultarModelos', {
                         'codigoTabelaReferencia':247,
                         'codigoTipoVeiculo': 1,
                         'codigoMarca': make_id,
-                        'codigoModelo': model_id,
-                        'anoModelo': version_year,
-                        'codigoTipoCombustivel': version_fuel_type,
-                        'tipoVeiculo': 'carro',
-                        'tipoConsulta': 'tradicional',
                     })
+                    make['models'] = models['Modelos']
+                    
+                    for model in make['models']:
+                        model_id = model['Value']
+                        model_key = '_'.join([str(make_id), str(model_id)])
 
-                    version['details'] = version_details
-                    #break
-                #break
-            #break
-    except:
-        output('Scrapping stopped by user action.')        
+                        if not model_key in processed_models:
+                            
+                            versions = post('ConsultarAnoModelo', {
+                                'codigoTabelaReferencia':247,
+                                'codigoTipoVeiculo': 1,
+                                'codigoMarca': make_id,
+                                'codigoModelo': model_id,
+                            })
+
+                            model['versions'] = versions
+
+                            for version in versions:
+                                version_id = version['Value']
+                                version_key = '_'.join([str(make_id), str(model_id), str(version_id)])
+
+                                if not version_key in processed_versions:
+                                    
+                                    version_year, version_fuel_type = version_id.split('-')
+                                    
+                                    version_details = post('ConsultarValorComTodosParametros', {
+                                        'codigoTabelaReferencia':247,
+                                        'codigoTipoVeiculo': 1,
+                                        'codigoMarca': make_id,
+                                        'codigoModelo': model_id,
+                                        'anoModelo': version_year,
+                                        'codigoTipoCombustivel': version_fuel_type,
+                                        'tipoVeiculo': 'carro',
+                                        'tipoConsulta': 'tradicional',
+                                    })
+
+                                    version['details'] = version_details
+
+                                    print('Car retrieved => ({year}) - {make} {car} - {timestamp}'.format(
+                                        make=version['details']['Marca'], 
+                                        car=version['details']['Modelo'], 
+                                        timestamp=version['details']['DataConsulta'],
+                                        year=str(version['details']['AnoModelo'])
+                                    ))
+                                    processed_versions.add(version_key)
+                            
+                            processed_models.add(model_key)
+                    
+                    processed_makes.add(make_id)
+            
+            done = True
+
+        except Exception as e:
+            done = False
+            print('=== EXCEPTION ===\n{}'.format(e))
+            output('Exception occurred. Retrying...')
 
     output('Car models successfully retrieved. Outputting file...')
 
