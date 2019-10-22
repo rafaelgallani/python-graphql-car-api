@@ -30,7 +30,7 @@ default_query = '''
 
 app.add_url_rule(
     '/cars',
-    view_func=GraphQLView.as_view('cars', schema=schema, graphiql=True)
+    view_func=GraphQLView.as_view('version', schema=schema, graphiql=True)
 )
 
 if __name__ == '__main__':

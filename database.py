@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from mongoengine import connect
+import random
 from models import Mark, Car, Version
 
 # database is mocked, the connection string could be any one with a valid mongodb instance.
@@ -25,8 +26,8 @@ def init_db():
 
         car.save()
         
-        flex_version = Version(model=car, name='{name} {fuel} - {year}'.format(name=car.name, fuel='Flex', year=2011, version_id=flex_counter))
-        gasoline_version = Version(model=car, name='{name} {fuel} - {year}'.format(name=car.name, fuel='Gasolina', year=2011, version_id=gas_counter))
+        flex_version = Version(price=random.randrange(0, 50000), model=car, name='{name} {fuel} - {year}'.format(name=car.name, fuel='Flex', year=2011, version_id=flex_counter))
+        gasoline_version = Version(price=random.randrange(0, 50000), model=car, name='{name} {fuel} - {year}'.format(name=car.name, fuel='Gasolina', year=2011, version_id=gas_counter))
         
         flex_version.save()
         gasoline_version.save()
