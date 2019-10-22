@@ -9,16 +9,16 @@ class Mark(Document):
     country = StringField()
     id = IntField()
 
-class Model(Document):
-    meta = {'collection': 'model'}
+class Car(Document):
+    meta = {'collection': 'car'}
     name = StringField()
     mark = ReferenceField(Mark)
     id = IntField()
 
 class Version(Document):
-    meta = {'collection': 'modelVersion'}
+    meta = {'collection': 'version'}
     name = StringField()
-    model = ReferenceField(Model)
+    model = ReferenceField(Car)
     price = DecimalField()
     fuelType = StringField()
     fipeCode = StringField()
