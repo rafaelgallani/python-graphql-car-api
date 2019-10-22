@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import requests, json, time, os
 
 interval = .100

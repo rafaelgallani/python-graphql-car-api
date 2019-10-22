@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from mongoengine import connect
 from models import Mark, Car, Version
 

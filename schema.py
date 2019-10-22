@@ -1,4 +1,4 @@
-# flask_graphene_mongo/schema.py
+#!/usr/bin/env python3
 import graphene
 from graphene.relay import Node
 from graphene_mongo import MongoengineConnectionField, MongoengineObjectType
