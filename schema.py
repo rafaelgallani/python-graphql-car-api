@@ -33,4 +33,52 @@ class Query(graphene.ObjectType):
     all_cars = MongoengineConnectionField(Car)
     car = graphene.Field(Car)
 
-schema = graphene.Schema(query=Query, types=[Mark, Car, Version])
+class CarVersionInput(graphene.InputObjectType):
+    version_id  = graphene.Int()
+    price = graphene.Float()
+    name = graphene.String()
+    fuel_type = graphene.String()
+    year = graphene.Int()
+
+class CarModelInput(graphene.InputObjectType):
+    country = graphene.String()
+    name = graphene.String()
+    mark_id = graphene.Int()
+
+class createCar(graphene.Mutation):
+    car_version = graphene.Field(Version)
+
+    class Arguments:
+        car_data = CarVersionInput()
+
+    def mutate(root, info, car_data):
+        car_version = VersionModel(
+            version_id = car_data.version_id,
+            price = car_data.price,
+            name = car_data.name,
+            fuelType = car_data.fuel_type,
+            year = car_data.year
+        )
+        car_version.save()
+        return createCar(car_version=car_version)
+
+class createMark(graphene.Mutation):
+    mark = graphene.Field(Mark)
+
+    class Arguments:
+        mark = CarModelInput()
+
+    def mutate(root, info, mark):
+        mark_obj = MarkModel(
+            name = mark.name,
+            country = mark.country,
+            mark_id = mark.mark_id
+        )
+        mark_obj.save()
+        return createMark(mark=mark_obj)
+    
+class Mutation(graphene.ObjectType):
+    create_car = createCar.Field()
+    create_mark = createMark.Field()
+
+schema = graphene.Schema(query=Query, mutation=Mutation, types=[Mark, Car, Version])
