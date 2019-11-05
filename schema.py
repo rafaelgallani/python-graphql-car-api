@@ -31,6 +31,7 @@ class Query(graphene.ObjectType):
     node = Node.Field()
     all_versions = MongoengineConnectionField(Version)
     all_cars = MongoengineConnectionField(Car)
+    all_marks = MongoengineConnectionField(Mark)
     car = graphene.Field(Car)
 
 class CarVersionInput(graphene.InputObjectType):

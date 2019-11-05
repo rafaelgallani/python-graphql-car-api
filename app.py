@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from database import init_db
-from flask import Flask
+from flask import Flask, render_template
 from flask_graphql import GraphQLView
 from schema import schema
 
@@ -28,8 +28,12 @@ default_query = '''
   }
 }'''.strip()
 
+@app.route("/marks")
+def home():
+    return render_template("pages/marks.html")
+
 app.add_url_rule(
-    '/cars',
+    '/api',
     view_func=GraphQLView.as_view('version', schema=schema, graphiql=True)
 )
 
