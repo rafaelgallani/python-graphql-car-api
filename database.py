@@ -8,7 +8,8 @@ connect('car-database-mock', host='mongomock://localhost', alias='default')
 
 def init_db():
 
-    mark = Mark(name='Ford', mark_id=1, country='US')
+    mark = Mark(name='Ford', mark_id=1, country='US').save()
+    Mark(name='Ford2', mark_id=2, country='US').save()
     mark.save()
 
     fiesta = Car(mark=mark, name='Fiesta', car_id=1)
