@@ -1,12 +1,12 @@
-allMarksQuery = (
+allBrandsQuery = (
     `
     {
-        allMarks {
+        allBrands {
             edges {
                 node {
                     id,
                     country,
-                    markId,
+                    brandId,
                     name
                 }
             }
@@ -23,11 +23,11 @@ allModelsQuery = (
                     id,
                     carId,
                     name,
-                    mark {
+                    brand {
                         country,
                         name,
                         id,
-                        markId
+                        brandId
                     }
                 }
             }
@@ -43,10 +43,10 @@ createModelMutation = (
             car {
                 carId,
                 name,
-                mark {
+                brand {
                     name,
                     country,
-                    markId
+                    brandId
                 }
             }
         }
@@ -60,10 +60,10 @@ deleteModelMutation = (
             car {
                 carId,
                 name,
-                mark {
+                brand {
                     name,
                     country,
-                    markId
+                    brandId
                 }
             }
         }
@@ -76,10 +76,10 @@ editModelMutation = `
             car {
                 carId,
                 name,
-                mark {
+                brand {
                     name,
                     country,
-                    markId
+                    brandId
                 }
             }
         }
@@ -90,10 +90,10 @@ var app = angular.module('app', []);
 app.controller('ModelController', ['$scope', function(scope){
     
     scope.newModel = {};
-    scope.marks = [];
+    scope.brands = [];
     scope.models = [];
 
-    /*                  MARKS                              */
+    /*                  BRANDS                              */
 
     fetch('http://localhost:5000/api?', {
         method: 'POST',
@@ -102,23 +102,23 @@ app.controller('ModelController', ['$scope', function(scope){
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            "query": allMarksQuery,
+            "query": allBrandsQuery,
             "variables": null,
             "operationName": null,
         })
     }).then(r => {
         return r.json().then(result => {
-            scope.marks = result.data.allMarks.edges.map(a => a.node)
+            scope.brands = result.data.allBrands.edges.map(a => a.node)
 
-            if (scope.marks.length){
-                scope.newModel.mark = scope.marks[0].markId;
+            if (scope.brands.length){
+                scope.newModel.brand = scope.brands[0].brandId;
             }
 
             scope.$apply();
 
-            return scope.marks
+            return scope.brands
         })
-    }).then(marks => {
+    }).then(brands => {
 
         /*                 MODELS                     */
 
@@ -179,7 +179,7 @@ app.controller('ModelController', ['$scope', function(scope){
         let variables = {
             "car": {
                 "name": model.name,
-                "mark": model.mark,
+                "brand": model.brand,
             }
         }
 
@@ -200,7 +200,7 @@ app.controller('ModelController', ['$scope', function(scope){
                         model.carId = result.data.createModel.car.carId
                     }
 
-                    model.mark = result.data.createModel.car.mark
+                    model.brand = result.data.createModel.car.brand
 
                     scope.models.push(model)
                     scope.$apply()
@@ -217,8 +217,8 @@ app.controller('ModelController', ['$scope', function(scope){
 
     scope.resetModel = function(){
         scope.newModel = {}
-        if (scope.marks.length) {
-            scope.newModel.mark = scope.marks[0].markId;
+        if (scope.brands.length) {
+            scope.newModel.brand = scope.brands[0].brandId;
         }
     };
 

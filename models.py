@@ -4,16 +4,16 @@ from mongoengine.fields import (
     StringField, IntField, DecimalField, ReferenceField
 )
 
-class Mark(Document):
-    meta = {'collection': 'mark'}
+class Brand(Document):
+    meta = {'collection': 'brand'}
     name = StringField()
     country = StringField()
-    mark_id = IntField()
+    brand_id = IntField()
 
 class Car(Document):
     meta = {'collection': 'car'}
     name = StringField()
-    mark = ReferenceField(Mark)
+    brand = ReferenceField(Brand)
     car_id = IntField()
 
 class Version(Document):

@@ -1,11 +1,11 @@
-allMarksQuery = (
+allBrandsQuery = (
     '{                        ' +
-        'allMarks {           ' +
+        'allBrands {           ' +
             'edges {          ' +
                 'node {       ' +
                     'id,      ' +
                     'country, ' +
-                    'markId,  ' +
+                    'brandId,  ' +
                     'name     ' +
                 '}            ' +
             '}                ' +
@@ -13,35 +13,35 @@ allMarksQuery = (
     '}                        '.trim()
 );
 
-createMarkMutation = (
-    `mutation($mark: CarMarkInput) { 
-        createMark(mark: $mark) {    
-            mark {                   
+createBrandMutation = (
+    `mutation($brand: CarBrandInput) { 
+        createBrand(brand: $brand) {    
+            brand {                   
                 country,            
-                markId, 
+                brandId, 
                 name                 
             }                        
         }                            
     }`
 );
 
-deleteMarkMutation = (
-    `mutation($mark: CarMarkInput) { 
-        deleteMark(mark: $mark) {    
-            mark {                   
+deleteBrandMutation = (
+    `mutation($brand: CarBrandInput) { 
+        deleteBrand(brand: $brand) {    
+            brand {                   
                 country,           
-                markId,  
+                brandId,  
                 name                 
             }                        
         }                            
     }`
 );
 
-editMarkMutation = `
-    mutation ($mark: CarMarkInput){
-        editMark(mark: $mark){
-            mark{
-                country, name, markId
+editBrandMutation = `
+    mutation ($brand: CarBrandInput){
+        editBrand(brand: $brand){
+            brand{
+                country, name, brandId
             }
         }
     }`;
@@ -49,7 +49,7 @@ editMarkMutation = `
 var app = angular.module('app', []);
 app.controller('BrandController', ['$scope', function(scope){
     
-    scope.newMark = {};
+    scope.newBrand = {};
     
     fetch('http://localhost:5000/api?', {
         method: 'POST',
@@ -58,26 +58,26 @@ app.controller('BrandController', ['$scope', function(scope){
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            "query": allMarksQuery,
+            "query": allBrandsQuery,
             "variables": null,
             "operationName": null,
         })
     }).then(r => {
         r.json().then(result => {
-            scope.marks = result.data.allMarks.edges.map(a => a.node)
+            scope.brands = result.data.allBrands.edges.map(a => a.node)
             scope.$apply();
         })
     })
 
 
-    scope.saveMarkInfo = function(mark){
-        let newMark = Object.assign({}, mark);
+    scope.saveBrandInfo = function(brand){
+        let newBrand = Object.assign({}, brand);
 
         let variables = {
-            "mark": {
-                name: newMark.name, 
-                country: newMark.country,
-                markId: newMark.markId
+            "brand": {
+                name: newBrand.name, 
+                country: newBrand.country,
+                brandId: newBrand.brandId
             }
         }
 
@@ -88,34 +88,34 @@ app.controller('BrandController', ['$scope', function(scope){
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                "query": editMarkMutation,
+                "query": editBrandMutation,
                 "variables": variables,
             })
         }).then(r => {
             r.json().then(result => {
                 if ('data' in result) {
                     scope.$apply()
-                    toastr.success('The mark was successfully updated.')
+                    toastr.success('The brand was successfully updated.')
                 } else if ('errors' in result) {
-                    toastr.error('The mark was not updated. Errors: ' + result.errors.map(a => a.message).join('\n'))
+                    toastr.error('The brand was not updated. Errors: ' + result.errors.map(a => a.message).join('\n'))
                 }
             })
         })
 
-        scope.newMark = {}
+        scope.newBrand = {}
     }
 
-    scope.deleteMark = function(mark){
+    scope.deleteBrand = function(brand){
 
         setTimeout(function(){
 
-            let markToDelete = Object.assign({}, mark);
+            let brandToDelete = Object.assign({}, brand);
 
             let variables = {
-                "mark": {
-                    "country": markToDelete.country,
-                    "name": markToDelete.name,
-                    "markId": markToDelete.markId,
+                "brand": {
+                    "country": brandToDelete.country,
+                    "name": brandToDelete.name,
+                    "brandId": brandToDelete.brandId,
                 }
             }
 
@@ -126,21 +126,21 @@ app.controller('BrandController', ['$scope', function(scope){
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    "query": deleteMarkMutation,
+                    "query": deleteBrandMutation,
                     "variables": variables,
                 })
             }).then(r => {
                 r.json().then(result => {
                     if ('data' in result) {
                         
-                        toastr.success('The mark was successfully deleted.')
+                        toastr.success('The brand was successfully deleted.')
 
-                        let markIndex = scope.marks.findIndex(a => a.id == markToDelete.id);
-                        scope.marks.splice(markIndex, 1);
+                        let brandIndex = scope.brands.findIndex(a => a.id == brandToDelete.id);
+                        scope.brands.splice(brandIndex, 1);
                         
                         scope.$apply()
                     } else if ('errors' in result) {
-                        toastr.error('The mark was not deleted. Errors: ' + result.errors.map(a => a.message).join('\n'))
+                        toastr.error('The brand was not deleted. Errors: ' + result.errors.map(a => a.message).join('\n'))
                     }
                 })
             })
@@ -149,13 +149,13 @@ app.controller('BrandController', ['$scope', function(scope){
 
     };
 
-    scope.createMark = function(){
-        let mark = Object.assign({}, scope.newMark);
+    scope.createBrand = function(){
+        let brand = Object.assign({}, scope.newBrand);
 
         let variables = {
-            "mark": {
-                "country": mark.country,
-                "name": mark.name,
+            "brand": {
+                "country": brand.country,
+                "name": brand.name,
             }
         }
 
@@ -166,25 +166,25 @@ app.controller('BrandController', ['$scope', function(scope){
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                "query": createMarkMutation,
+                "query": createBrandMutation,
                 "variables": variables,
             })
         }).then(r => {
             r.json().then(result => {
                 if ('data' in result){
-                    if (!mark.markId){
-                        mark.markId = result.data.createMark.mark.markId
+                    if (!brand.brandId){
+                        brand.brandId = result.data.createBrand.brand.brandId
                     }
-                    scope.marks.push(mark)
+                    scope.brands.push(brand)
                     scope.$apply()
-                    toastr.success('The mark was successfully added.')
+                    toastr.success('The brand was successfully added.')
                 } else if ('errors' in result){
-                    toastr.error('The mark was not added. Errors: ' + result.errors.map(a => a.message).join('\n'))
+                    toastr.error('The brand was not added. Errors: ' + result.errors.map(a => a.message).join('\n'))
                 }
             })
         })
 
-        scope.newMark = {}
+        scope.newBrand = {}
 
     }
 }])

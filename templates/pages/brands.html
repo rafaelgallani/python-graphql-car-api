@@ -11,12 +11,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/material-icons.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/marks.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/brands.css') }}">
     <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
     <script src="{{ url_for('static', filename='js/toastr.js') }}"></script>
     <script src="{{ url_for('static', filename='js/angular.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/mark_app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/brand_app.js') }}"></script>
 </head>
 
 {% raw %}
@@ -49,8 +49,8 @@
                     </tr>
                    
                 </thead>
-                <tbody id="marks-table">
-                    <tr ng-repeat="mark in marks">
+                <tbody id="brands-table">
+                    <tr ng-repeat="brand in brands">
                         <!-- <td>
                             <span class="custom-checkbox">
                                 <input type="checkbox" id="checkbox5" name="options[]" value="1">
@@ -58,13 +58,13 @@
                             </span>
                         </td> -->
                     
-                        <td>{{ mark.name    }}</td>
-                        <td>{{ mark.country }}</td>
+                        <td>{{ brand.name    }}</td>
+                        <td>{{ brand.country }}</td>
                     
                         <td>
-                            <a href="#editBrandModal_{{mark.markId}}" class="edit" data-toggle="modal"><i class="material-icons" data-toggle="tooltip"
+                            <a href="#editBrandModal_{{brand.brandId}}" class="edit" data-toggle="modal"><i class="material-icons" data-toggle="tooltip"
                                     title="Edit">&#xE254;</i></a>
-                            <a href="#deleteBrandModal_{{mark.markId}}" class="delete" data-toggle="modal"><i class="material-icons" data-toggle="tooltip"
+                            <a href="#deleteBrandModal_{{brand.brandId}}" class="delete" data-toggle="modal"><i class="material-icons" data-toggle="tooltip"
                                     title="Delete">&#xE872;</i></a>
                         </td>
                     </tr>
@@ -74,8 +74,8 @@
         </div>
     </div>
 
-    <div ng-repeat="mark in marks track by mark.markId">
-        <div id="editBrandModal_{{mark.markId}}" class="modal fade">
+    <div ng-repeat="brand in brands track by brand.brandId">
+        <div id="editBrandModal_{{brand.brandId}}" class="modal fade">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <form>
@@ -86,24 +86,24 @@
                         <div class="modal-body">
                             <div class="form-group">
                                 <label>Name</label>
-                                <input type="text" class="form-control" required value="{{mark.name}}" ng-model="mark.name">
+                                <input type="text" class="form-control" required value="{{brand.name}}" ng-model="brand.name">
                             </div>
                             <div class="form-group">
                                 <label>Country</label>
-                                <input type="text" class="form-control" required value="{{mark.country}}"
-                                    ng-model="mark.country">
+                                <input type="text" class="form-control" required value="{{brand.country}}"
+                                    ng-model="brand.country">
                             </div>
                         </div>
                         <div class="modal-footer">
                             <input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
-                            <input type="submit" class="btn btn-info" value="Save" ng-click="saveMarkInfo(mark)" data-dismiss="modal">
+                            <input type="submit" class="btn btn-info" value="Save" ng-click="saveBrandInfo(brand)" data-dismiss="modal">
                         </div>
                     </form>
                 </div>
             </div>
         </div>
 
-        <div id="deleteBrandModal_{{mark.markId}}" class="modal fade">
+        <div id="deleteBrandModal_{{brand.brandId}}" class="modal fade">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <form>
@@ -117,7 +117,7 @@
                         </div>
                         <div class="modal-footer">
                             <input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
-                            <input type="submit" class="btn btn-danger" value="Delete" ng-click="deleteMark(mark)" data-dismiss="modal" >
+                            <input type="submit" class="btn btn-danger" value="Delete" ng-click="deleteBrand(brand)" data-dismiss="modal" >
                         </div>
                     </form>
                 </div>
@@ -138,16 +138,16 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label>Name</label>  
-                            <input type="text" class="form-control" required ng-model="newMark.name">
+                            <input type="text" class="form-control" required ng-model="newBrand.name">
                         </div>
                         <div class="form-group">
                             <label>Country</label>
-                            <input type="text" class="form-control" required ng-model="newMark.country">
+                            <input type="text" class="form-control" required ng-model="newBrand.country">
                         </div>
                     </div>
                     <div class="modal-footer">
                         <input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
-                        <input type="submit" class="btn btn-success" value="Add" ng-click="createMark()" data-dismiss="modal">
+                        <input type="submit" class="btn btn-success" value="Add" ng-click="createBrand()" data-dismiss="modal">
                     </div>
                 </form>
             </div>

@@ -2,14 +2,14 @@
 import graphene
 from graphene.relay import Node
 from graphene_mongo import MongoengineConnectionField, MongoengineObjectType
-from models import Mark as MarkModel
+from models import Brand as BrandModel
 from models import Car as CarModel
 from models import Version as VersionModel
 
-class Mark(MongoengineObjectType):
+class Brand(MongoengineObjectType):
 
     class Meta:
-        model = MarkModel
+        model = BrandModel
         interfaces = (Node,)
 
 
@@ -31,7 +31,7 @@ class Query(graphene.ObjectType):
     node = Node.Field()
     all_versions = MongoengineConnectionField(Version)
     all_cars = MongoengineConnectionField(Car)
-    all_marks = MongoengineConnectionField(Mark)
+    all_brands = MongoengineConnectionField(Brand)
     # car = graphene.Field(Car)
 
 class CarVersionInput(graphene.InputObjectType):
@@ -43,13 +43,13 @@ class CarVersionInput(graphene.InputObjectType):
 
 class CarModelInput(graphene.InputObjectType):
     name   = graphene.String()
-    mark   = graphene.Int()
+    brand   = graphene.Int()
     car_id = graphene.Int()
 
-class CarMarkInput(graphene.InputObjectType):
+class CarBrandInput(graphene.InputObjectType):
     country = graphene.String()
     name = graphene.String()
-    mark_id = graphene.Int()
+    brand_id = graphene.Int()
 
 # class createVersion(graphene.Mutation):
 #     car_version = graphene.Field(Version)
@@ -79,11 +79,11 @@ class createModel(graphene.Mutation):
         if not car.car_id:
             car.car_id = len(CarModel.objects) + 1
 
-        mark = MarkModel.objects.get(mark_id=car.mark)
+        brand = BrandModel.objects.get(brand_id=car.brand)
 
         car_model = CarModel(
             name   = car.name,
-            mark   = mark.id,
+            brand   = brand.id,
             car_id = car.car_id
         )
         car_model.save()
@@ -116,49 +116,49 @@ class deleteModel(graphene.Mutation):
         return deleteModel(car=None)
 
 
-class createMark(graphene.Mutation):
-    mark = graphene.Field(Mark)
+class createBrand(graphene.Mutation):
+    brand = graphene.Field(Brand)
 
     class Arguments:
-        mark = CarMarkInput()
+        brand = CarBrandInput()
 
-    def mutate(root, info, mark):
-        if not mark.mark_id:
-            mark.mark_id = len(MarkModel.objects) + 1
+    def mutate(root, info, brand):
+        if not brand.brand_id:
+            brand.brand_id = len(BrandModel.objects) + 1
             
-        mark_obj = MarkModel(
-            name = mark.name,
-            country = mark.country,
-            mark_id = mark.mark_id
+        brand_obj = BrandModel(
+            name = brand.name,
+            country = brand.country,
+            brand_id = brand.brand_id
         )
-        mark_obj.save()
-        return createMark(mark=mark_obj)
+        brand_obj.save()
+        return createBrand(brand=brand_obj)
 
-class editMark(graphene.Mutation):
-    mark = graphene.Field(Mark)
+class editBrand(graphene.Mutation):
+    brand = graphene.Field(Brand)
     class Arguments:
-        mark = CarMarkInput()
+        brand = CarBrandInput()
 
-    def mutate(root, info, mark):
-        mark_obj = MarkModel.objects.get(mark_id=mark.mark_id)
+    def mutate(root, info, brand):
+        brand_obj = BrandModel.objects.get(brand_id=brand.brand_id)
         
-        mark_obj.name = mark.name
-        mark_obj.country = mark.country
+        brand_obj.name = brand.name
+        brand_obj.country = brand.country
         
-        mark_obj.save()
-        return createMark(mark=mark_obj)
+        brand_obj.save()
+        return createBrand(brand=brand_obj)
 
-class deleteMark(graphene.Mutation):
-    mark = graphene.Field(Mark)
+class deleteBrand(graphene.Mutation):
+    brand = graphene.Field(Brand)
 
     class Arguments:
-        mark = CarMarkInput()
+        brand = CarBrandInput()
 
-    def mutate(root, info, mark):
-        index = [ m.mark_id for m in MarkModel.objects ].index(mark.mark_id)
+    def mutate(root, info, brand):
+        index = [ m.brand_id for m in BrandModel.objects ].index(brand.brand_id)
         
-        MarkModel.objects[index].delete()
-        return createMark(mark=None)
+        BrandModel.objects[index].delete()
+        return createBrand(brand=None)
     
 class Mutation(graphene.ObjectType):
     
@@ -166,8 +166,8 @@ class Mutation(graphene.ObjectType):
     edit_model = editModel.Field()
     delete_model = deleteModel.Field()
 
-    create_mark = createMark.Field()
-    edit_mark = editMark.Field()
-    delete_mark = deleteMark.Field()
+    create_brand = createBrand.Field()
+    edit_brand = editBrand.Field()
+    delete_brand = deleteBrand.Field()
 
-schema = graphene.Schema(query=Query, mutation=Mutation, types=[Mark, Car, Version])
+schema = graphene.Schema(query=Query, mutation=Mutation, types=[Brand, Car, Version])

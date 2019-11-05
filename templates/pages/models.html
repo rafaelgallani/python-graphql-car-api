@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/material-icons.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/marks.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/brands.css') }}">
     <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
     <script src="{{ url_for('static', filename='js/toastr.js') }}"></script>
     <script src="{{ url_for('static', filename='js/angular.js') }}"></script>
@@ -39,16 +39,16 @@
                     <tr>
 
                         <th>Name</th>
-                        <th>Mark</th>
+                        <th>Brand</th>
                         <th>Actions</th>
                     </tr>
                    
                 </thead>
-                <tbody id="marks-table">
+                <tbody id="brands-table">
                     <tr ng-repeat="model in models track by model.carId">
                     
                         <td>{{ model.name    }}</td>
-                        <td>{{ model.mark.name }}</td>
+                        <td>{{ model.brand.name }}</td>
                     
                         <td>
                             <a href="#editModelModal_{{model.carId}}" class="edit" data-toggle="modal"><i class="material-icons" data-toggle="tooltip"
@@ -125,11 +125,11 @@
                             <input type="text" class="form-control" required ng-model="newModel.name">
                         </div> 
                         <div class="form-group"> 
-                            <label>Mark</label>
+                            <label>Brand</label>
                             <select 
                                 class="form-control"
-                                ng-model="newModel.mark" 
-                                ng-options="mark.markId as mark.name for mark in marks"
+                                ng-model="newModel.brand" 
+                                ng-options="brand.brandId as brand.name for brand in brands"
                             >
                             </select>
                         </div>

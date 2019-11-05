@@ -18,7 +18,7 @@ default_query = '''
         model {
           id,
           name,
-          mark {
+          brand {
             id,
             name,
             country
@@ -29,9 +29,9 @@ default_query = '''
   }
 }'''.strip()
 
-@app.route("/marks")
-def marks():
-    return render_template("pages/marks.html")
+@app.route("/brands")
+def brands():
+    return render_template("pages/brands.html")
 
 @app.route("/models")
 def models():
