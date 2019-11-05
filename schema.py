@@ -70,6 +70,9 @@ class createMark(graphene.Mutation):
         mark = CarMarkInput()
 
     def mutate(root, info, mark):
+        if not mark.mark_id:
+            mark.mark_id = len(MarkModel.objects) + 1
+            
         mark_obj = MarkModel(
             name = mark.name,
             country = mark.country,
@@ -80,11 +83,12 @@ class createMark(graphene.Mutation):
 
 class editMark(graphene.Mutation):
     mark = graphene.Field(Mark)
-
     class Arguments:
         mark = CarMarkInput()
 
     def mutate(root, info, mark):
+        print([ m.mark_id for m in MarkModel.objects ])
+        
         mark_obj = MarkModel.objects.get(mark_id=mark.mark_id)
         
         mark_obj.name = mark.name
@@ -92,10 +96,23 @@ class editMark(graphene.Mutation):
         
         mark_obj.save()
         return createMark(mark=mark_obj)
+
+class deleteMark(graphene.Mutation):
+    mark = graphene.Field(Mark)
+
+    class Arguments:
+        mark = CarMarkInput()
+
+    def mutate(root, info, mark):
+        index = [ m.mark_id for m in MarkModel.objects ].index(mark.mark_id)
+        
+        MarkModel.objects[index].delete()
+        return createMark(mark=None)
     
 class Mutation(graphene.ObjectType):
     create_car = createCar.Field()
     create_mark = createMark.Field()
     edit_mark = editMark.Field()
+    delete_mark = deleteMark.Field()
 
 schema = graphene.Schema(query=Query, mutation=Mutation, types=[Mark, Car, Version])
