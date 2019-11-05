@@ -33,6 +33,10 @@ default_query = '''
 def brands():
     return render_template("pages/brands.html")
 
+@app.route("/")
+def index():
+    return render_template("pages/brands.html")
+
 @app.route("/models")
 def models():
     return render_template("pages/models.html")

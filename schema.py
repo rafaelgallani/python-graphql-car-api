@@ -110,7 +110,7 @@ class deleteModel(graphene.Mutation):
         car = CarModelInput()
 
     def mutate(root, info, car):
-        index = [ m.car_id for m in CarModel.objects ].index(car_data.car_id)
+        index = [ m.car_id for m in CarModel.objects ].index(car.car_id)
         
         CarModel.objects[index].delete()
         return deleteModel(car=None)
