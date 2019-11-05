@@ -30,8 +30,12 @@ default_query = '''
 }'''.strip()
 
 @app.route("/marks")
-def home():
+def marks():
     return render_template("pages/marks.html")
+
+@app.route("/models")
+def models():
+    return render_template("pages/models.html")
 
 app.add_url_rule(
     '/api',

@@ -1,58 +1,100 @@
+allMarksQuery = (
+    `
+    {
+        allMarks {
+            edges {
+                node {
+                    id,
+                    country,
+                    markId,
+                    name
+                }
+            }
+        }
+    }
+    `
+);
 allModelsQuery = (
-    '{                        ' +
-        'allMarks {           ' +
-            'edges {          ' +
-                'node {       ' +
-                    'id,      ' +
-                    'country, ' +
-                    'markId,  ' +
-                    'name     ' +
-                '}            ' +
-            '}                ' +
-        '}                    ' +
-    '}                        '.trim()
+    `
+    {
+        allCars {
+            edges {
+                node {
+                    id,
+                    carId,
+                    name,
+                    mark {
+                        country,
+                        name,
+                        id,
+                        markId
+                    }
+                }
+            }
+        }
+    }
+    `
 );
 
 createModelMutation = (
-    `mutation ($car: CarModelInput){
-        createCar(carData: $car){
-            carModel{
-            carId,
-            name,
-            mark{
-                name, country, markId
-            }
+    `
+    mutation($car: CarModelInput) {
+        createModel(car: $car) {
+            car {
+                carId,
+                name,
+                mark {
+                    name,
+                    country,
+                    markId
                 }
             }
-        }`
+        }
+    }
+    `
 );
 
 deleteModelMutation = (
-    `mutation($mark: CarMarkInput) { 
-        deleteMark(mark: $mark) {    
-            mark {                   
-                country,           
-                markId,  
-                name                 
-            }                        
-        }                            
+    `mutation($car: CarModelInput) {
+        deleteModel(car: $car) {
+            car {
+                carId,
+                name,
+                mark {
+                    name,
+                    country,
+                    markId
+                }
+            }
+        }
     }`
 );
 
 editModelMutation = `
-    mutation ($mark: CarMarkInput){
-        editMark(mark: $mark){
-            mark{
-                country, name, markId
+    mutation($car: CarModelInput) {
+        editModel(car: $car) {
+            car {
+                carId,
+                name,
+                mark {
+                    name,
+                    country,
+                    markId
+                }
             }
         }
-    }`;
+    }
+    `;
 
 var app = angular.module('app', []);
-app.controller('BrandController', ['$scope', function(scope){
+app.controller('ModelController', ['$scope', function(scope){
     
-    scope.newMark = {};
-    
+    scope.newModel = {};
+    scope.marks = [];
+    scope.models = [];
+
+    /*                  MARKS                              */
+
     fetch('http://localhost:5000/api?', {
         method: 'POST',
         headers: {
@@ -65,21 +107,47 @@ app.controller('BrandController', ['$scope', function(scope){
             "operationName": null,
         })
     }).then(r => {
-        r.json().then(result => {
+        return r.json().then(result => {
             scope.marks = result.data.allMarks.edges.map(a => a.node)
+
+            if (scope.marks.length){
+                scope.newModel.mark = scope.marks[0].markId;
+            }
+
             scope.$apply();
+
+            return scope.marks
+        })
+    }).then(marks => {
+
+        /*                 MODELS                     */
+
+        fetch('http://localhost:5000/api?', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "query": allModelsQuery,
+                "variables": null,
+                "operationName": null,
+            })
+        }).then(r => {
+            r.json().then(result => {
+                scope.models = result.data.allCars.edges.map(a => a.node)
+                scope.$apply()
+            })
         })
     })
 
-
-    scope.saveMarkInfo = function(mark){
-        let newMark = Object.assign({}, mark);
+    scope.saveModelInfo = function (model) {
+        let newModel = Object.assign({}, model);
 
         let variables = {
-            "mark": {
-                name: newMark.name, 
-                country: newMark.country,
-                markId: newMark.markId
+            "car": {
+                name: newModel.name,
+                carId: newModel.carId
             }
         }
 
@@ -90,74 +158,28 @@ app.controller('BrandController', ['$scope', function(scope){
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                "query": editMarkMutation,
+                "query": editModelMutation,
                 "variables": variables,
             })
         }).then(r => {
             r.json().then(result => {
                 if ('data' in result) {
                     scope.$apply()
-                    toastr.success('The mark was successfully updated.')
+                    toastr.success('The model was successfully updated.')
                 } else if ('errors' in result) {
-                    toastr.error('The mark was not updated. Errors: ' + result.errors.map(a => a.message).join('\n'))
+                    toastr.error('The model was not updated. Errors: ' + result.errors.map(a => a.message).join('\n'))
                 }
             })
         })
-
-        scope.newMark = {}
     }
 
-    scope.deleteMark = function(mark){
-
-        setTimeout(function(){
-
-            let markToDelete = Object.assign({}, mark);
-
-            let variables = {
-                "mark": {
-                    "country": markToDelete.country,
-                    "name": markToDelete.name,
-                    "markId": markToDelete.markId,
-                }
-            }
-
-            fetch('http://localhost:5000/api?', {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    "query": deleteMarkMutation,
-                    "variables": variables,
-                })
-            }).then(r => {
-                r.json().then(result => {
-                    if ('data' in result) {
-                        
-                        toastr.success('The mark was successfully deleted.')
-
-                        let markIndex = scope.marks.findIndex(a => a.id == markToDelete.id);
-                        scope.marks.splice(markIndex, 1);
-                        
-                        scope.$apply()
-                    } else if ('errors' in result) {
-                        toastr.error('The mark was not deleted. Errors: ' + result.errors.map(a => a.message).join('\n'))
-                    }
-                })
-            })
-
-        }, 500);
-
-    };
-
-    scope.createMark = function(){
-        let mark = Object.assign({}, scope.newMark);
+    scope.createModel = function () {
+        let model = Object.assign({}, scope.newModel);
 
         let variables = {
-            "mark": {
-                "country": mark.country,
-                "name": mark.name,
+            "car": {
+                "name": model.name,
+                "mark": model.mark,
             }
         }
 
@@ -168,25 +190,37 @@ app.controller('BrandController', ['$scope', function(scope){
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                "query": createMarkMutation,
+                "query": createModelMutation,
                 "variables": variables,
             })
         }).then(r => {
             r.json().then(result => {
-                if ('data' in result){
-                    if (!mark.markId){
-                        mark.markId = result.data.createMark.mark.markId;
+                if ('data' in result) {
+                    if (!model.carId) {
+                        model.carId = result.data.createModel.car.carId
                     }
-                    scope.marks.push(mark)
+
+                    model.mark = result.data.createModel.car.mark
+
+                    scope.models.push(model)
                     scope.$apply()
-                    toastr.success('The mark was successfully added.')
-                } else if ('errors' in result){
-                    toastr.error('The mark was not added. Errors: ' + result.errors.map(a => a.message).join('\n'))
+                    toastr.success('The model was successfully added.')
+                } else if ('errors' in result) {
+                    toastr.error('The model was not added. Errors: ' + result.errors.map(a => a.message).join('\n'))
                 }
             })
         })
 
-        scope.newMark = {}
-
+        scope.resetModel();
     }
+
+
+    scope.resetModel = function(){
+        scope.newModel = {}
+        if (scope.marks.length) {
+            scope.newModel.mark = scope.marks[0].markId;
+        }
+    }
+
+
 }])

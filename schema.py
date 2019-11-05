@@ -68,23 +68,53 @@ class CarMarkInput(graphene.InputObjectType):
 #         car_version.save()
 #         return createVersion(car_version=car_version)
 
-class createCar(graphene.Mutation):
-    car_model = graphene.Field(Car)
+class createModel(graphene.Mutation):
+    car = graphene.Field(Car)
 
     class Arguments:
-        car_data = CarModelInput()
+        car = CarModelInput()
 
-    def mutate(root, info, car_data):
+    def mutate(root, info, car):
 
-        mark = MarkModel.objects.get(mark_id=car_data.mark)
+        if not car.car_id:
+            car.car_id = len(CarModel.objects) + 1
+
+        mark = MarkModel.objects.get(mark_id=car.mark)
 
         car_model = CarModel(
-            name   = car_data.name,
+            name   = car.name,
             mark   = mark.id,
-            car_id = car_data.car_id
+            car_id = car.car_id
         )
         car_model.save()
-        return createCar(car_model=car_model)
+        return createModel(car=car_model)
+
+class editModel(graphene.Mutation):
+    car = graphene.Field(Car)
+    class Arguments:
+        car = CarModelInput()
+
+    def mutate(root, info, car):
+        
+        model_obj = CarModel.objects.get(car_id=car.car_id)
+        
+        model_obj.name = car.name
+        
+        model_obj.save()
+        return editModel(car=model_obj)
+
+class deleteModel(graphene.Mutation):
+    car = graphene.Field(Car)
+
+    class Arguments:
+        car = CarModelInput()
+
+    def mutate(root, info, car):
+        index = [ m.car_id for m in CarModel.objects ].index(car_data.car_id)
+        
+        CarModel.objects[index].delete()
+        return deleteModel(car=None)
+
 
 class createMark(graphene.Mutation):
     mark = graphene.Field(Mark)
@@ -110,8 +140,6 @@ class editMark(graphene.Mutation):
         mark = CarMarkInput()
 
     def mutate(root, info, mark):
-        print([ m.mark_id for m in MarkModel.objects ])
-        
         mark_obj = MarkModel.objects.get(mark_id=mark.mark_id)
         
         mark_obj.name = mark.name
@@ -133,7 +161,11 @@ class deleteMark(graphene.Mutation):
         return createMark(mark=None)
     
 class Mutation(graphene.ObjectType):
-    create_car = createCar.Field()
+    
+    create_model = createModel.Field()
+    edit_model = editModel.Field()
+    # delete_model = deleteModel.Field()
+
     create_mark = createMark.Field()
     edit_mark = editMark.Field()
     delete_mark = deleteMark.Field()
