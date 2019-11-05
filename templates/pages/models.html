@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Brands</title>
+    <title>Models</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/varela-font.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/toastr.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/material-icons.css') }}">
@@ -16,21 +16,21 @@
     <script src="{{ url_for('static', filename='js/toastr.js') }}"></script>
     <script src="{{ url_for('static', filename='js/angular.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/mark_app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/model_app.js') }}"></script>
 </head>
 
 {% raw %}
-<body ng-controller="BrandController">
+<body ng-controller="ModelController">
     <div class="container">
         <div class="table-wrapper">
             <div class="table-title">
                 <div class="row">
                     <div class="col-sm-6">
-                        <h2>Manage <b>Brands</b></h2>
+                        <h2>Manage <b>Models</b></h2>
                     </div>
                     <div class="col-sm-6">
-                        <a href="#addBrandModal" class="btn btn-success" data-toggle="modal"><i
-                                class="material-icons">&#xE147;</i> <span>Add new Brand</span></a>
+                        <a href="#addModelModal" class="btn btn-success" data-toggle="modal"><i
+                                class="material-icons">&#xE147;</i> <span>Add new Model</span></a>
                     </div>
                 </div>
             </div>

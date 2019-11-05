@@ -1,4 +1,4 @@
-allMarksQuery = (
+allModelsQuery = (
     '{                        ' +
         'allMarks {           ' +
             'edges {          ' +
@@ -13,19 +13,21 @@ allMarksQuery = (
     '}                        '.trim()
 );
 
-createMarkMutation = (
-    `mutation($mark: CarMarkInput) { 
-        createMark(mark: $mark) {    
-            mark {                   
-                country,            
-                markId, 
-                name                 
-            }                        
-        }                            
-    }`
+createModelMutation = (
+    `mutation ($car: CarModelInput){
+        createCar(carData: $car){
+            carModel{
+            carId,
+            name,
+            mark{
+                name, country, markId
+            }
+                }
+            }
+        }`
 );
 
-deleteMarkMutation = (
+deleteModelMutation = (
     `mutation($mark: CarMarkInput) { 
         deleteMark(mark: $mark) {    
             mark {                   
@@ -37,7 +39,7 @@ deleteMarkMutation = (
     }`
 );
 
-editMarkMutation = `
+editModelMutation = `
     mutation ($mark: CarMarkInput){
         editMark(mark: $mark){
             mark{
@@ -173,7 +175,7 @@ app.controller('BrandController', ['$scope', function(scope){
             r.json().then(result => {
                 if ('data' in result){
                     if (!mark.markId){
-                        mark.markId = result.data.createMark.mark.markId
+                        mark.markId = result.data.createMark.mark.markId;
                     }
                     scope.marks.push(mark)
                     scope.$apply()

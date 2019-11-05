@@ -32,7 +32,7 @@ class Query(graphene.ObjectType):
     all_versions = MongoengineConnectionField(Version)
     all_cars = MongoengineConnectionField(Car)
     all_marks = MongoengineConnectionField(Mark)
-    car = graphene.Field(Car)
+    # car = graphene.Field(Car)
 
 class CarVersionInput(graphene.InputObjectType):
     version_id  = graphene.Int()
@@ -41,27 +41,50 @@ class CarVersionInput(graphene.InputObjectType):
     fuel_type = graphene.String()
     year = graphene.Int()
 
+class CarModelInput(graphene.InputObjectType):
+    name   = graphene.String()
+    mark   = graphene.Int()
+    car_id = graphene.Int()
+
 class CarMarkInput(graphene.InputObjectType):
     country = graphene.String()
     name = graphene.String()
     mark_id = graphene.Int()
 
+# class createVersion(graphene.Mutation):
+#     car_version = graphene.Field(Version)
+
+#     class Arguments:
+#         car_data = CarVersionInput()
+
+#     def mutate(root, info, car_data):
+#         car_version = VersionModel(
+#             version_id = car_data.version_id,
+#             price = car_data.price,
+#             name = car_data.name,
+#             fuelType = car_data.fuel_type,
+#             year = car_data.year
+#         )
+#         car_version.save()
+#         return createVersion(car_version=car_version)
+
 class createCar(graphene.Mutation):
-    car_version = graphene.Field(Version)
+    car_model = graphene.Field(Car)
 
     class Arguments:
-        car_data = CarVersionInput()
+        car_data = CarModelInput()
 
     def mutate(root, info, car_data):
-        car_version = VersionModel(
-            version_id = car_data.version_id,
-            price = car_data.price,
-            name = car_data.name,
-            fuelType = car_data.fuel_type,
-            year = car_data.year
+
+        mark = MarkModel.objects.get(mark_id=car_data.mark)
+
+        car_model = CarModel(
+            name   = car_data.name,
+            mark   = mark.id,
+            car_id = car_data.car_id
         )
-        car_version.save()
-        return createCar(car_version=car_version)
+        car_model.save()
+        return createCar(car_model=car_model)
 
 class createMark(graphene.Mutation):
     mark = graphene.Field(Mark)
