@@ -220,7 +220,49 @@ app.controller('ModelController', ['$scope', function(scope){
         if (scope.marks.length) {
             scope.newModel.mark = scope.marks[0].markId;
         }
-    }
+    };
+
+    scope.deleteModel = function (model) {
+
+        setTimeout(function () {
+
+            let modelToDelete = Object.assign({}, model);
+
+            let variables = {
+                "car": {
+                    "carId": modelToDelete.carId,
+                }
+            }
+
+            fetch('http://localhost:5000/api?', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    "query": deleteModelMutation,
+                    "variables": variables,
+                })
+            }).then(r => {
+                r.json().then(result => {
+                    if ('data' in result) {
+
+                        toastr.success('The model was successfully deleted.')
+
+                        let modelIndex = scope.models.findIndex(a => a.id == modelToDelete.id);
+                        scope.models.splice(modelIndex, 1);
+
+                        scope.$apply()
+                    } else if ('errors' in result) {
+                        toastr.error('The model was not deleted. Errors: ' + result.errors.map(a => a.message).join('\n'))
+                    }
+                })
+            })
+
+        }, 500);
+
+    };
 
 
 }])

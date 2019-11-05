@@ -164,7 +164,7 @@ class Mutation(graphene.ObjectType):
     
     create_model = createModel.Field()
     edit_model = editModel.Field()
-    # delete_model = deleteModel.Field()
+    delete_model = deleteModel.Field()
 
     create_mark = createMark.Field()
     edit_mark = editMark.Field()
