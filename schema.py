@@ -41,7 +41,7 @@ class CarVersionInput(graphene.InputObjectType):
     fuel_type = graphene.String()
     year = graphene.Int()
 
-class CarModelInput(graphene.InputObjectType):
+class CarMarkInput(graphene.InputObjectType):
     country = graphene.String()
     name = graphene.String()
     mark_id = graphene.Int()
@@ -67,7 +67,7 @@ class createMark(graphene.Mutation):
     mark = graphene.Field(Mark)
 
     class Arguments:
-        mark = CarModelInput()
+        mark = CarMarkInput()
 
     def mutate(root, info, mark):
         mark_obj = MarkModel(
@@ -77,9 +77,25 @@ class createMark(graphene.Mutation):
         )
         mark_obj.save()
         return createMark(mark=mark_obj)
+
+class editMark(graphene.Mutation):
+    mark = graphene.Field(Mark)
+
+    class Arguments:
+        mark = CarMarkInput()
+
+    def mutate(root, info, mark):
+        mark_obj = MarkModel.objects.get(mark_id=mark.mark_id)
+        
+        mark_obj.name = mark.name
+        mark_obj.country = mark.country
+        
+        mark_obj.save()
+        return createMark(mark=mark_obj)
     
 class Mutation(graphene.ObjectType):
     create_car = createCar.Field()
     create_mark = createMark.Field()
+    edit_mark = editMark.Field()
 
 schema = graphene.Schema(query=Query, mutation=Mutation, types=[Mark, Car, Version])
